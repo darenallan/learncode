@@ -1,0 +1,1636 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>Mes cours</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap"
+    />
+    <style>
+      /* Même palette que index.html : fond papier chaud, accent vert sapin ;
+         vert/rouge réservés aux corrections, ambre aux révisions dues. */
+      :root {
+        color-scheme: light;
+        --bg: #f6f5f1;
+        --surface: #ffffff;
+        --fg: #17181c;
+        --muted: #5f6370;
+        --line: #e3e1d9;
+        --accent: #0d6e5f;
+        --accent-fg: #ffffff;
+        --ok: #1d7a43;
+        --ok-bg: #e4f5ea;
+        --bad: #b42318;
+        --bad-bg: #fde8e6;
+        --soft: #e6efeb;
+        --warn: #9a5b00;
+        --warn-bg: #fdf1dc;
+        --display: "Bricolage Grotesque", system-ui, sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #121417;
+          --surface: #1b1e23;
+          --fg: #eceee9;
+          --muted: #9ca1ab;
+          --line: #2c3038;
+          --accent: #5fd0b7;
+          --accent-fg: #0c1f1b;
+          --ok: #6fd39a;
+          --ok-bg: #15301f;
+          --bad: #ff8a80;
+          --bad-bg: #3a1714;
+          --soft: #1a2b27;
+          --warn: #f2b860;
+          --warn-bg: #33260f;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #121417;
+        --surface: #1b1e23;
+        --fg: #eceee9;
+        --muted: #9ca1ab;
+        --line: #2c3038;
+        --accent: #5fd0b7;
+        --accent-fg: #0c1f1b;
+        --ok: #6fd39a;
+        --ok-bg: #15301f;
+        --bad: #ff8a80;
+        --bad-bg: #3a1714;
+        --soft: #1a2b27;
+        --warn: #f2b860;
+        --warn-bg: #33260f;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        padding-block: max(20px, env(safe-area-inset-top, 0px)) 40px;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+      }
+      #app {
+        max-width: 680px;
+        margin: 0 auto;
+        min-width: 0;
+      }
+      .view {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--display);
+        margin: 0;
+        text-wrap: balance;
+        line-height: 1.15;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      h2 {
+        font-size: 19px;
+      }
+      h3 {
+        font-size: 16px;
+      }
+      p {
+        margin: 0;
+      }
+      a {
+        color: var(--accent);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .small {
+        font-size: 13px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+      }
+      .card.soft {
+        background: var(--soft);
+        border-color: transparent;
+      }
+      .card.warn {
+        background: var(--warn-bg);
+        border-color: transparent;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .row > .grow {
+        flex: 1 1 200px;
+        min-width: 0;
+      }
+      .row.start {
+        justify-content: flex-start;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      @media (max-width: 520px) {
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .stat {
+        padding: 12px 14px;
+        gap: 2px;
+      }
+      .stat .v {
+        font-family: var(--display);
+        font-size: 24px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+      }
+      .stat .l {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .bar {
+        height: 8px;
+        background: var(--line);
+        border-radius: 999px;
+        overflow: hidden;
+        flex: 1;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.3s;
+      }
+      .tag {
+        font-size: 12px;
+        border-radius: 999px;
+        padding: 2px 10px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        white-space: nowrap;
+        flex: none;
+      }
+      .tag.ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+        border-color: transparent;
+      }
+      .tag.due {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border-color: transparent;
+      }
+      .tag.next {
+        background: var(--accent);
+        color: var(--accent-fg);
+        border-color: transparent;
+      }
+      button {
+        font: inherit;
+      }
+      .btn {
+        cursor: pointer;
+        border-radius: 10px;
+        padding: 10px 16px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: var(--accent-fg);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--accent);
+      }
+      .btn.sm {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .link {
+        all: unset;
+        cursor: pointer;
+        color: var(--muted);
+        text-decoration: underline;
+        font-size: 13px;
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      pre {
+        margin: 0;
+        background: var(--soft);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font: 13.5px/1.55 var(--mono);
+        overflow-x: auto;
+        max-width: 100%;
+        color: var(--fg);
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.92em;
+      }
+      p code,
+      li code,
+      dd code,
+      .opt code {
+        background: var(--soft);
+        border-radius: 5px;
+        padding: 1px 5px;
+        overflow-wrap: anywhere;
+      }
+      pre.err {
+        background: var(--bad-bg);
+        color: var(--bad);
+        white-space: pre-wrap;
+      }
+      .prompt {
+        font-family: var(--display);
+        font-size: 20px;
+        line-height: 1.3;
+        text-wrap: pretty;
+      }
+      .opts {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .opt {
+        text-align: left;
+        cursor: pointer;
+        background: var(--surface);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 14px;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .opt.ok {
+        background: var(--ok-bg);
+        border-color: var(--ok);
+        color: var(--ok);
+      }
+      .opt.bad {
+        background: var(--bad-bg);
+        border-color: var(--bad);
+        color: var(--bad);
+      }
+      .opt:disabled {
+        cursor: default;
+      }
+      input.text,
+      textarea.text {
+        font: 15px var(--mono);
+        background: var(--surface);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px 14px;
+        width: 100%;
+        min-width: 0;
+      }
+      textarea.text {
+        display: block;
+        resize: vertical;
+        min-height: 130px;
+        font: 14px/1.55 var(--mono);
+        tab-size: 2;
+      }
+      input.search {
+        font: inherit;
+      }
+      .feedback {
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .feedback.ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+      .feedback.bad {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+      .feedback p,
+      .feedback pre {
+        color: var(--fg);
+      }
+      .feedback pre {
+        background: var(--surface);
+      }
+      .center {
+        text-align: center;
+        align-items: center;
+      }
+      .big {
+        font-family: var(--display);
+        font-size: 46px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .learn p {
+        max-width: 65ch;
+      }
+      .res {
+        overflow-x: auto;
+        max-width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+      }
+      .res table {
+        border-collapse: collapse;
+        font: 13px/1.4 var(--mono);
+        min-width: 100%;
+      }
+      .res caption {
+        text-align: left;
+        padding: 8px 10px 4px;
+        font:
+          12px system-ui,
+          sans-serif;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .res th,
+      .res td {
+        padding: 6px 10px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        white-space: nowrap;
+      }
+      .res th {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .res td.null {
+        color: var(--muted);
+        font-style: italic;
+      }
+      .out {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+      }
+      .out:empty {
+        display: none;
+      }
+      details summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-weight: 600;
+        padding: 2px 0;
+      }
+      details pre {
+        margin-top: 8px;
+      }
+      /* Liste des briques d'un jour */
+      .bricks {
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--line);
+      }
+      .brick {
+        all: unset;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 2px;
+        border-bottom: 1px solid var(--line);
+        min-width: 0;
+      }
+      .brick:last-child {
+        border-bottom: 0;
+      }
+      .brick:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 6px;
+      }
+      .brick-title {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .brick.new .brick-title {
+        color: var(--muted);
+      }
+      .num {
+        font: 700 12px var(--mono);
+        color: var(--muted);
+        width: 34px;
+        flex: none;
+      }
+      /* Boîtes de Leitner : 5 traits, remplis selon la solidité du souvenir */
+      .boxes {
+        display: flex;
+        gap: 3px;
+        flex: none;
+      }
+      .boxes i {
+        width: 6px;
+        height: 14px;
+        border-radius: 2px;
+        background: var(--line);
+      }
+      .boxes i.on {
+        background: var(--accent);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .quit {
+        all: unset;
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+        color: var(--muted);
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+      .terms {
+        display: grid;
+        grid-template-columns: minmax(90px, max-content) 1fr;
+        gap: 6px 14px;
+        margin: 0;
+        font-size: 14px;
+      }
+      .terms dt {
+        font: 700 13px var(--mono);
+        color: var(--accent);
+        overflow-wrap: anywhere;
+      }
+      .terms dd {
+        margin: 0;
+        min-width: 0;
+      }
+      @media (max-width: 420px) {
+        .terms {
+          grid-template-columns: 1fr;
+          gap: 2px;
+        }
+        .terms dd {
+          margin-bottom: 8px;
+        }
+      }
+      .method {
+        margin: 0;
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .lex-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .signature {
+        text-align: center;
+        padding-block: 8px;
+      }
+      .signature a {
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .signature a:hover {
+        text-decoration: underline;
+      }
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--line);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        vertical-align: -2px;
+        margin-right: 6px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation-duration: 2s !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"><p class="muted">Chargement des cours…</p></div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        /* ---------- Catalogue des cours ----------
+           Chaque dossier de cours/ fournit un cours.js (description + base d'exemple)
+           puis un fichier par jour. Ajouter un cours = ajouter une entrée ici. */
+        const MANIFEST = [
+          {
+            dir: "cours/SQL_Avancé",
+            files: ["cours.js", "jour1.js", "jour2.js", "jour3.js", "jour4.js", "jour5.js"],
+          },
+        ];
+        // PostgreSQL 18 compilé en WebAssembly, chargé à la demande ; version épinglée.
+        // Plusieurs CDN : certains réseaux (école, box) en bloquent un.
+        const PGLITE_URLS = [
+          "https://unpkg.com/@electric-sql/pglite@0.5.8/dist/index.js",
+          "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.8/dist/index.js",
+        ];
+        // Jours d'attente avant la révision suivante, selon la boîte (1 à 5).
+        const INTERVALS = [0, 1, 3, 7, 16, 35];
+        const MASTERED = 4;
+        const KEY = "learncode.cours.v1";
+
+        const COURSES = [];
+        window.COURS = {
+          add(c) {
+            c.days = [];
+            COURSES.push(c);
+          },
+          day(courseId, d) {
+            const c = COURSES.find((x) => x.id === courseId);
+            if (c) c.days.push(d);
+          },
+        };
+
+        /* ---------- Outils ---------- */
+        function el(tag, attrs, ...kids) {
+          const n = document.createElement(tag);
+          for (const [k, v] of Object.entries(attrs || {})) {
+            if (v === false || v == null) continue;
+            if (k === "class") n.className = v;
+            else if (k === "style") n.setAttribute("style", v);
+            else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+            else n.setAttribute(k, v === true ? "" : String(v));
+          }
+          for (const kid of kids.flat(Infinity)) {
+            if (kid == null || kid === false) continue;
+            n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+          }
+          return n;
+        }
+        // Texte des cours : `code` et **gras** en ligne.
+        function rich(text) {
+          const out = [];
+          const re = /(`[^`]+`|\*\*[^*]+\*\*)/g;
+          let last = 0;
+          let m;
+          while ((m = re.exec(text))) {
+            if (m.index > last) out.push(text.slice(last, m.index));
+            const t = m[0];
+            out.push(t[0] === "`" ? el("code", {}, t.slice(1, -1)) : el("strong", {}, t.slice(2, -2)));
+            last = re.lastIndex;
+          }
+          if (last < text.length) out.push(text.slice(last));
+          return out;
+        }
+        function shuffle(a) {
+          const r = a.slice();
+          for (let i = r.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [r[i], r[j]] = [r[j], r[i]];
+          }
+          return r;
+        }
+        const pad = (n) => String(n).padStart(2, "0");
+        const iso = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+        const today = () => iso(new Date());
+        function addDays(day, n) {
+          const [y, m, d] = day.split("-").map(Number);
+          return iso(new Date(y, m - 1, d + n));
+        }
+        function daysUntil(day) {
+          const [y, m, d] = day.split("-").map(Number);
+          const [ty, tm, td] = today().split("-").map(Number);
+          return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 864e5);
+        }
+        function when(day) {
+          const n = daysUntil(day);
+          if (n <= 0) return "aujourd'hui";
+          if (n === 1) return "demain";
+          return "dans " + n + " j";
+        }
+        const plural = (n, w) => n + " " + w + (n > 1 ? "s" : "");
+
+        /* ---------- Progression (navigateur) ---------- */
+        function load() {
+          try {
+            const s = JSON.parse(localStorage.getItem(KEY));
+            if (s && s.v === 1) return s;
+          } catch {}
+          return { v: 1, bricks: {}, xp: 0, days: {}, sandbox: {} };
+        }
+        let state = load();
+        function save() {
+          try {
+            localStorage.setItem(KEY, JSON.stringify(state));
+          } catch {}
+        }
+        function gainXp(n) {
+          state.xp += n;
+          state.days[today()] = (state.days[today()] || 0) + n;
+        }
+        function streak() {
+          let n = 0;
+          let d = today();
+          if (!state.days[d]) d = addDays(d, -1);
+          while (state.days[d]) {
+            n++;
+            d = addDays(d, -1);
+          }
+          return n;
+        }
+
+        /* ---------- Briques et répétition espacée ---------- */
+        const bkey = (b) => b.course.id + ":" + b.id;
+        const memo = (b) => state.bricks[bkey(b)];
+        // Réussite : la brique monte d'une boîte et revient plus tard ; échec : retour en boîte 1, demain.
+        function promote(b, ok) {
+          const s = memo(b) || { box: 0 };
+          s.box = ok ? Math.min(5, s.box + 1) : 1;
+          s.due = addDays(today(), INTERVALS[s.box]);
+          s.last = today();
+          state.bricks[bkey(b)] = s;
+        }
+        function status(b) {
+          const s = memo(b);
+          if (!s) return "new";
+          if (s.due <= today()) return "due";
+          return s.box >= MASTERED ? "master" : "learned";
+        }
+        const allBricks = (c) => c.days.flatMap((d) => d.bricks);
+        const nextBrick = (c) => allBricks(c).find((b) => !memo(b));
+        const dueBricks = (c) =>
+          allBricks(c)
+            .filter((b) => status(b) === "due")
+            .sort((a, b) => memo(a).due.localeCompare(memo(b).due));
+        function courseStats(c) {
+          const all = allBricks(c);
+          return {
+            total: all.length,
+            learned: all.filter((b) => memo(b)).length,
+            mastered: all.filter((b) => memo(b) && memo(b).box >= MASTERED).length,
+            due: all.filter((b) => status(b) === "due").length,
+          };
+        }
+        function boxes(b) {
+          const s = memo(b);
+          const n = s ? s.box : 0;
+          return el(
+            "span",
+            { class: "boxes", title: s ? "Boîte " + n + " sur 5" : "Pas encore vue", "aria-hidden": "true" },
+            [1, 2, 3, 4, 5].map((i) => el("i", { class: i <= n ? "on" : "" })),
+          );
+        }
+
+        /* ---------- Moteur SQL : PGlite (PostgreSQL 18) ---------- */
+        const PG = { inst: null, loading: null, lock: Promise.resolve(), course: null };
+        const keep = (v) => v;
+        // Dates et heures renvoyées telles que PostgreSQL les écrit (en UTC), pas en objets JS.
+        const RAW = { rowMode: "array", parsers: { 1082: keep, 1083: keep, 1114: keep, 1184: keep, 1186: keep, 1266: keep } };
+        // Nettoie ce que l'étudiant a pu créer, sans détruire le banc d'essai (long à reconstruire).
+        const CLEAN = `ROLLBACK; DEALLOCATE ALL; RESET ALL; SET TIME ZONE 'UTC';
+DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;
+CREATE SCHEMA IF NOT EXISTS work;
+DO $$ DECLARE r record; BEGIN
+  FOR r IN SELECT c.relname, c.relkind FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'work' AND c.relkind IN ('r','p','v','m','S') AND c.relname <> 'bench_orders'
+    ORDER BY c.relkind = 'S' LOOP
+    EXECUTE format('DROP %s IF EXISTS work.%I CASCADE',
+      CASE r.relkind WHEN 'v' THEN 'VIEW' WHEN 'm' THEN 'MATERIALIZED VIEW' WHEN 'S' THEN 'SEQUENCE' ELSE 'TABLE' END, r.relname);
+  END LOOP;
+  FOR r IN SELECT indexname FROM pg_indexes WHERE schemaname = 'work' AND tablename = 'bench_orders'
+    AND indexname <> 'bench_orders_pkey' LOOP
+    EXECUTE format('DROP INDEX work.%I', r.indexname);
+  END LOOP;
+END $$;
+`;
+        function pg() {
+          if (PG.inst) return Promise.resolve(PG.inst);
+          if (!PG.loading) {
+            PG.loading = PGLITE_URLS.reduce((p, url) => p.catch(() => import(url)), Promise.reject())
+              .then(({ PGlite }) => PGlite.create())
+              .then((db) => (PG.inst = db))
+              .catch((e) => {
+                PG.loading = null;
+                throw new Error("PostgreSQL n'a pas pu démarrer (connexion internet requise la première fois). " + e.message);
+              });
+          }
+          return PG.loading;
+        }
+        // Une seule opération à la fois : réinitialiser puis exécuter ne doit pas s'entrelacer.
+        function exclusive(fn) {
+          const p = PG.lock.then(fn, fn);
+          PG.lock = p.catch(() => {});
+          return p;
+        }
+        async function reset(db, c, bench) {
+          await db.exec(CLEAN + c.seed);
+          PG.course = c.id;
+          if (bench && c.bench) {
+            const r = await db.query("SELECT to_regclass('work.bench_orders') IS NOT NULL AS ok");
+            if (!r.rows[0].ok) await db.exec(c.bench);
+          }
+        }
+        function sets(results) {
+          return results
+            .filter((r) => r.fields && r.fields.length)
+            .map((r) => ({ cols: r.fields.map((f) => f.name), rows: r.rows }));
+        }
+        // Exécute du SQL sur une base remise à neuf ; verify relit l'état après coup.
+        function evaluate(c, bench, sql, verify) {
+          return exclusive(async () => {
+            const db = await pg();
+            await reset(db, c, bench);
+            try {
+              const res = await db.exec(sql, RAW);
+              let out = sets(res);
+              const affected = res.reduce((n, r) => n + (r.affectedRows || 0), 0);
+              if (verify) {
+                await db.exec("ROLLBACK").catch(() => {});
+                out = sets(await db.exec(verify, RAW));
+              }
+              return { sets: out, affected };
+            } catch (e) {
+              return { err: e };
+            }
+          });
+        }
+        // Bac à sable : pas de remise à neuf, l'état persiste entre les exécutions.
+        function runFree(sql) {
+          return exclusive(async () => {
+            const db = await pg();
+            try {
+              const res = await db.exec(sql, RAW);
+              return { sets: sets(res), affected: res.reduce((n, r) => n + (r.affectedRows || 0), 0) };
+            } catch (e) {
+              return { err: e };
+            }
+          });
+        }
+        function canon(v) {
+          if (v === null || v === undefined) return "∅";
+          if (typeof v === "boolean") return v ? "t" : "f";
+          if (typeof v === "number" || typeof v === "bigint") return String(Number(v));
+          if (typeof v === "string" && /^-?\d+(\.\d+)?$/.test(v)) return String(Number(v));
+          if (v instanceof Date) return v.toISOString();
+          if (typeof v === "object") return JSON.stringify(v);
+          return String(v);
+        }
+        function sameResult(a, b, ordered, cols) {
+          if (!a || !b) return !a && !b;
+          if (a.cols.length !== b.cols.length) return false;
+          if (cols && a.cols.some((n, i) => n.toLowerCase() !== b.cols[i].toLowerCase())) return false;
+          if (a.rows.length !== b.rows.length) return false;
+          const ra = a.rows.map((r) => r.map(canon).join("\u0001"));
+          const rb = b.rows.map((r) => r.map(canon).join("\u0001"));
+          if (!ordered) {
+            ra.sort();
+            rb.sort();
+          }
+          return ra.every((x, i) => x === rb[i]);
+        }
+        function show(v) {
+          if (v === null || v === undefined) return "NULL";
+          if (typeof v === "object" && !(v instanceof Date)) return JSON.stringify(v);
+          return String(v);
+        }
+        function resultView(r, label) {
+          if (r.err) {
+            const e = r.err;
+            const lines = ["ERREUR" + (e.code ? " " + e.code : "") + " : " + e.message];
+            if (e.detail) lines.push("Détail : " + e.detail);
+            if (e.hint) lines.push("Indice : " + e.hint);
+            return el("pre", { class: "err" }, lines.join("\n"));
+          }
+          if (!r.sets.length) {
+            return el(
+              "p",
+              { class: "small muted" },
+              "Commande exécutée" + (r.affected ? " · " + plural(r.affected, "ligne") + " modifiée" + (r.affected > 1 ? "s" : "") : "") + ".",
+            );
+          }
+          return r.sets.slice(-4).map((s, i, arr) => {
+            if (s.cols.length === 1 && s.cols[0] === "QUERY PLAN") {
+              return el("pre", {}, s.rows.map((x) => x[0]).join("\n"));
+            }
+            const max = 50;
+            return el(
+              "div",
+              { class: "res" },
+              el(
+                "table",
+                {},
+                el(
+                  "caption",
+                  {},
+                  (label || (arr.length > 1 ? "Résultat " + (i + 1) : "Résultat")) + " · " + plural(s.rows.length, "ligne"),
+                ),
+                el("tr", {}, s.cols.map((c) => el("th", { scope: "col" }, c))),
+                s.rows.slice(0, max).map((row) =>
+                  el("tr", {}, row.map((v) => el("td", { class: v === null ? "null" : "" }, show(v)))),
+                ),
+                s.rows.length > max ? el("tr", {}, el("td", { colspan: s.cols.length }, "… " + (s.rows.length - max) + " lignes de plus")) : null,
+              ),
+            );
+          });
+        }
+        function busy(box, text) {
+          box.replaceChildren(el("p", { class: "small muted" }, el("span", { class: "spinner" }), text));
+        }
+        function startText(bench) {
+          return PG.inst
+            ? bench
+              ? "Exécution (le banc d'essai de 300 000 lignes se crée la première fois)…"
+              : "Exécution…"
+            : "Démarrage de PostgreSQL dans le navigateur (quelques secondes, une seule fois)…";
+        }
+        const norm = (s) => s.replace(/\s+/g, " ").trim().toUpperCase();
+
+        /* ---------- Routes ---------- */
+        const app = document.getElementById("app");
+        let session = null;
+        function route() {
+          return location.hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
+        }
+        const go = (path) => (location.hash = "#/" + path);
+        function render() {
+          const [k, cid, sub, arg] = route();
+          const c = k === "c" ? COURSES.find((x) => x.id === cid) : null;
+          let view;
+          if (!c) {
+            session = null;
+            view = homeView();
+          } else if (sub === "b" || sub === "rev" || sub === "train") {
+            const key = location.hash;
+            if (!session || session.key !== key) session = makeSession(c, sub, arg, key);
+            view = session ? sessionView() : courseView(c);
+          } else {
+            session = null;
+            if (sub === "lex") view = lexView(c);
+            else if (sub === "sql") view = sandboxView(c);
+            else view = courseView(c);
+          }
+          app.replaceChildren(view);
+        }
+        window.addEventListener("hashchange", () => {
+          render();
+          window.scrollTo(0, 0);
+        });
+
+        function signature() {
+          return el(
+            "footer",
+            { class: "signature small muted" },
+            "Fait par ",
+            el("a", { href: "https://portfolio-daren.onrender.com", target: "_blank", rel: "noopener" }, "Daren Tiendrebeogo"),
+          );
+        }
+        function stat(v, l) {
+          return el("div", { class: "card stat" }, el("div", { class: "v" }, String(v)), el("div", { class: "l" }, l));
+        }
+        function progress(n, total, label) {
+          return el(
+            "div",
+            { class: "bar", role: "progressbar", "aria-label": label, "aria-valuemin": 0, "aria-valuemax": total, "aria-valuenow": n },
+            el("span", { style: "width:" + (total ? Math.round((100 * n) / total) : 0) + "%" }),
+          );
+        }
+
+        /* ---------- Accueil des cours ---------- */
+        function homeView() {
+          document.title = "Mes cours";
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "header",
+              { class: "row" },
+              el("div", { class: "grow" }, el("p", { class: "eyebrow" }, "Learncode"), el("h1", {}, "Mes cours")),
+              el("a", { class: "btn ghost sm", href: "index.html" }, "← Accueil"),
+            ),
+            el(
+              "section",
+              { class: "stats", "aria-label": "Statistiques" },
+              stat(state.xp, "XP"),
+              stat(streak() + " j", "Série"),
+              stat(COURSES.reduce((n, c) => n + courseStats(c).learned, 0), "Briques vues"),
+              stat(COURSES.reduce((n, c) => n + courseStats(c).due, 0), "À réviser"),
+            ),
+            COURSES.map((c) => {
+              const s = courseStats(c);
+              return el(
+                "section",
+                { class: "card" },
+                el("p", { class: "eyebrow" }, c.subtitle),
+                el("h2", {}, c.title),
+                el("p", { class: "small muted" }, c.summary),
+                el("div", { class: "row" }, progress(s.learned, s.total, "Briques vues"), el("span", { class: "small muted" }, s.learned + " / " + s.total)),
+                el(
+                  "div",
+                  { class: "row" },
+                  el("span", { class: s.due ? "tag due" : "tag" }, s.due ? plural(s.due, "brique") + " à réviser" : "Rien à réviser"),
+                  el("a", { class: "btn", href: "#/c/" + c.id }, s.learned ? "Continuer" : "Commencer"),
+                ),
+              );
+            }),
+            el(
+              "section",
+              { class: "card soft" },
+              el("h2", {}, "La méthode"),
+              el(
+                "ol",
+                { class: "method" },
+                el("li", {}, rich("**Une brique = une notion.** Tu lis une explication courte avec un exemple que tu peux exécuter.")),
+                el("li", {}, rich("**Tu pratiques tout de suite** : questions, mots à compléter, requêtes à écrire. Une erreur revient en fin de série.")),
+                el("li", {}, rich("**Tu révises au bon moment** : chaque brique revient demain, puis dans 3, 7, 16 et 35 jours. Une erreur la renvoie à demain.")),
+                el("li", {}, rich("**Après 3 révisions réussies d'affilée**, la brique est maîtrisée : elle est ancrée dans ta mémoire longue.")),
+              ),
+            ),
+            signature(),
+          );
+        }
+
+        /* ---------- Page d'un cours ---------- */
+        function courseView(c) {
+          document.title = c.title + " · Mes cours";
+          const s = courseStats(c);
+          const nb = nextBrick(c);
+          const due = dueBricks(c);
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "header",
+              { class: "row" },
+              el("div", { class: "grow" }, el("p", { class: "eyebrow" }, c.subtitle), el("h1", {}, c.title)),
+              el("a", { class: "btn ghost sm", href: "#/" }, "← Mes cours"),
+            ),
+            el(
+              "section",
+              { class: "stats", "aria-label": "Progression" },
+              stat(s.learned + "/" + s.total, "Vues"),
+              stat(s.mastered, "Maîtrisées"),
+              stat(s.due, "À réviser"),
+              stat(streak() + " j", "Série"),
+            ),
+            due.length
+              ? el(
+                  "section",
+                  { class: "card warn" },
+                  el("p", { class: "eyebrow" }, "Révision du jour"),
+                  el(
+                    "div",
+                    { class: "row" },
+                    el(
+                      "div",
+                      { class: "grow" },
+                      el("h2", {}, plural(due.length, "brique") + " à revoir"),
+                      el("p", { class: "small muted" }, "Commence par là : réviser au bon moment est ce qui fixe le cours."),
+                    ),
+                    el("a", { class: "btn", href: "#/c/" + c.id + "/rev" }, "Réviser"),
+                  ),
+                )
+              : null,
+            nb
+              ? el(
+                  "section",
+                  { class: "card soft" },
+                  el("p", { class: "eyebrow" }, s.learned ? "Brique suivante" : "Première brique"),
+                  el(
+                    "div",
+                    { class: "row" },
+                    el("div", { class: "grow" }, el("h2", {}, nb.title), el("p", { class: "small muted" }, nb.day.label + " · " + nb.day.title)),
+                    el("a", { class: "btn", href: "#/c/" + c.id + "/b/" + nb.id }, "Apprendre"),
+                  ),
+                )
+              : el(
+                  "section",
+                  { class: "card soft" },
+                  el("h2", {}, "Toutes les briques sont vues"),
+                  el("p", { class: "small muted" }, "Continue les révisions jusqu'à tout maîtriser, et entraîne-toi par jour avant l'examen."),
+                ),
+            el(
+              "div",
+              { class: "row start" },
+              el("a", { class: "btn ghost sm", href: "#/c/" + c.id + "/lex" }, "Lexique"),
+              c.seed ? el("a", { class: "btn ghost sm", href: "#/c/" + c.id + "/sql" }, "Bac à sable SQL") : null,
+            ),
+            c.days.map((d) => dayCard(c, d, nb)),
+            el("p", { class: "small muted" }, c.note),
+            signature(),
+          );
+        }
+        function dayCard(c, d, nb) {
+          const seen = d.bricks.filter((b) => memo(b)).length;
+          return el(
+            "section",
+            { class: "card" },
+            el(
+              "div",
+              { class: "row" },
+              el("div", { class: "grow" }, el("p", { class: "eyebrow" }, d.label), el("h2", {}, d.title)),
+              el("span", { class: "small muted" }, seen + " / " + d.bricks.length),
+            ),
+            d.summary ? el("p", { class: "small muted" }, d.summary) : null,
+            el(
+              "div",
+              { class: "bricks" },
+              d.bricks.map((b, i) => {
+                const st = status(b);
+                const s = memo(b);
+                const tag =
+                  b === nb
+                    ? el("span", { class: "tag next" }, "Suivante")
+                    : st === "due"
+                      ? el("span", { class: "tag due" }, "À revoir")
+                      : st === "master"
+                        ? el("span", { class: "tag ok" }, "Maîtrisée")
+                        : st === "learned"
+                          ? el("span", { class: "tag" }, "Révision " + when(s.due))
+                          : null;
+                return el(
+                  "button",
+                  { class: "brick " + st, type: "button", onclick: () => go("c/" + c.id + "/b/" + b.id) },
+                  el("span", { class: "num" }, d.n + "." + (i + 1)),
+                  el("span", { class: "brick-title" }, b.title),
+                  tag,
+                  boxes(b),
+                );
+              }),
+            ),
+            seen
+              ? el("button", { class: "link", type: "button", onclick: () => go("c/" + c.id + "/train/" + d.id) }, "S'entraîner sur ce jour (10 questions mélangées)")
+              : null,
+          );
+        }
+
+        /* ---------- Sessions : apprendre, réviser, s'entraîner ---------- */
+        function makeSession(c, kind, arg, key) {
+          const base = { key, c, i: 0, fails: new Set(), firstTry: 0, asked: 0 };
+          if (kind === "b") {
+            const b = allBricks(c).find((x) => x.id === arg);
+            if (!b) return null;
+            return { ...base, kind: "learn", b, title: b.title, items: [{ learn: true, b }, ...b.ex.map((ex) => ({ b, ex }))] };
+          }
+          if (kind === "rev") {
+            const due = dueBricks(c).slice(0, 12);
+            if (!due.length) return null;
+            const items = shuffle(due.flatMap((b) => shuffle(b.ex).slice(0, 2).map((ex) => ({ b, ex }))));
+            return { ...base, kind: "review", title: "Révision du jour", bricks: due, items };
+          }
+          const d = c.days.find((x) => x.id === arg);
+          if (!d) return null;
+          const seen = d.bricks.filter((b) => memo(b));
+          const pool = (seen.length ? seen : d.bricks).flatMap((b) => b.ex.map((ex) => ({ b, ex })));
+          return { ...base, kind: "train", title: "Entraînement · " + d.title, items: shuffle(pool).slice(0, 10) };
+        }
+        function quitSession() {
+          const c = session.c;
+          session = null;
+          go("c/" + c.id);
+        }
+        function sessionView() {
+          const s = session;
+          document.title = s.title + " · " + s.c.title;
+          if (s.i >= s.items.length) return endView();
+          const item = s.items[s.i];
+          const exCount = s.items.filter((x) => !x.learn).length;
+          const doneEx = s.items.slice(0, s.i).filter((x) => !x.learn).length;
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "div",
+              { class: "topbar" },
+              el("button", { class: "quit", type: "button", "aria-label": "Quitter", title: "Quitter", onclick: quitSession }, "×"),
+              progress(doneEx, exCount, "Progression de la série"),
+              el("span", { class: "small muted" }, doneEx + "/" + exCount),
+            ),
+            item.learn ? learnView(item.b) : exView(item),
+          );
+        }
+        function nextItem() {
+          session.i++;
+          render();
+          window.scrollTo(0, 0);
+        }
+        // Une réponse est notée à la première tentative ; une erreur remet la question en fin de série.
+        function record(item, ok, requeue) {
+          if (item.retry) return;
+          session.asked++;
+          if (ok) session.firstTry++;
+          else {
+            session.fails.add(item.b);
+            if (requeue) session.items.push({ ...item, retry: true });
+          }
+        }
+
+        /* ----- Étape « Comprendre » ----- */
+        function learnView(b) {
+          const c = b.course;
+          const idx = b.day.bricks.indexOf(b);
+          return el(
+            "article",
+            { class: "view learn" },
+            el("p", { class: "eyebrow" }, b.day.label + " · brique " + (idx + 1) + " sur " + b.day.bricks.length),
+            el("h1", {}, b.title),
+            b.learn.map((p) => el("p", {}, rich(p))),
+            b.code ? codeRunner(c, b, b.code) : null,
+            b.retiens ? el("div", { class: "card warn" }, el("p", { class: "eyebrow" }, "À retenir"), el("p", {}, rich(b.retiens))) : null,
+            b.keys && b.keys.length
+              ? el(
+                  "section",
+                  { class: "card" },
+                  el("h3", {}, "Mots-clés"),
+                  el("dl", { class: "terms" }, b.keys.map(([t, d]) => [el("dt", {}, t), el("dd", {}, rich(d))])),
+                )
+              : null,
+            el(
+              "div",
+              { class: "row" },
+              el("span", { class: "small muted" }, plural(b.ex.length, "exercice") + " pour ancrer la notion"),
+              el("button", { class: "btn", id: "primary", type: "button", onclick: nextItem }, "Je m'exerce →"),
+            ),
+          );
+        }
+        function codeRunner(c, b, code) {
+          const out = el("div", { class: "out" });
+          const btn = el("button", { class: "btn ghost sm", type: "button" }, "▶ Exécuter l'exemple");
+          btn.onclick = async () => {
+            btn.disabled = true;
+            busy(out, startText(b.bench));
+            try {
+              const r = await evaluate(c, b.bench, code);
+              out.replaceChildren(...[resultView(r)].flat());
+            } catch (e) {
+              out.replaceChildren(el("pre", { class: "err" }, e.message));
+            }
+            btn.disabled = false;
+          };
+          return el(
+            "section",
+            { class: "card" },
+            el("div", { class: "row" }, el("p", { class: "eyebrow" }, "Exemple"), c.seed ? btn : null),
+            el("pre", {}, code),
+            out,
+          );
+        }
+
+        /* ----- Exercices ----- */
+        const KIND = { qcm: "Question", fill: "Complète", sql: "Écris la requête" };
+        function exView(item) {
+          const ex = item.ex;
+          const head = [
+            el("p", { class: "eyebrow" }, (item.retry ? "On reprend · " : "") + (ex.code && ex.t === "qcm" ? "Prédis" : KIND[ex.t]) + " · " + item.b.title),
+            el("p", { class: "prompt" }, rich(ex.q)),
+            ex.code ? el("pre", {}, ex.code) : null,
+          ];
+          const body = ex.t === "qcm" ? qcmView(item) : ex.t === "fill" ? fillView(item) : sqlView(item);
+          return el("section", { class: "view" }, head, body);
+        }
+        function feedback(ok, ex, extra) {
+          return el(
+            "div",
+            { class: "feedback " + (ok ? "ok" : "bad"), role: "status" },
+            el("strong", {}, ok ? "Correct" : "Pas tout à fait"),
+            extra || null,
+            ex.why ? el("p", {}, rich(ex.why)) : null,
+          );
+        }
+        function continueBtn() {
+          return el("div", { class: "row" }, el("span"), el("button", { class: "btn", id: "primary", type: "button", onclick: nextItem }, "Continuer"));
+        }
+        function qcmView(item) {
+          const ex = item.ex;
+          const zone = el("div", { class: "out" });
+          const order = shuffle(ex.o.map((_, i) => i));
+          const btns = order.map((i) => el("button", { class: "opt", type: "button", onclick: () => pick(i) }, rich(ex.o[i])));
+          function pick(i) {
+            const ok = i === ex.a;
+            btns.forEach((b, k) => {
+              b.disabled = true;
+              if (order[k] === ex.a) b.classList.add("ok");
+              else if (order[k] === i) b.classList.add("bad");
+            });
+            record(item, ok, true);
+            zone.replaceChildren(feedback(ok, ex, ok ? null : el("p", {}, "Bonne réponse : ", rich(ex.o[ex.a]))), continueBtn());
+            document.getElementById("primary").focus();
+          }
+          return el("div", { class: "view" }, el("div", { class: "opts" }, btns), zone);
+        }
+        function fillView(item) {
+          const ex = item.ex;
+          const zone = el("div", { class: "out" });
+          const input = el("input", { class: "text", type: "text", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Ta réponse" });
+          const check = el("button", { class: "btn", id: "primary", type: "button" }, "Valider");
+          const clean = (s) => norm(s).replace(/;$/, "").normalize("NFD").replace(/[̀-ͯ]/g, "");
+          check.onclick = () => {
+            if (!input.value.trim()) return input.focus();
+            const ok = ex.a.some((a) => clean(a) === clean(input.value));
+            input.disabled = true;
+            check.remove();
+            record(item, ok, true);
+            zone.replaceChildren(feedback(ok, ex, ok ? null : el("p", {}, "Réponse attendue : ", el("code", {}, ex.a[0]))), continueBtn());
+            document.getElementById("primary").focus();
+          };
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.stopPropagation();
+              if (input.isConnected && !input.disabled) check.click();
+            }
+          });
+          setTimeout(() => input.focus(), 0);
+          return el("div", { class: "view" }, input, el("div", { class: "row" }, el("span", { class: "small muted" }, "Entrée pour valider"), check), zone);
+        }
+        function sqlView(item) {
+          const ex = item.ex;
+          const b = item.b;
+          const c = b.course;
+          const ta = el("textarea", { class: "text", spellcheck: "false", autocapitalize: "off", autocomplete: "off", "aria-label": "Ta requête SQL" });
+          ta.value = ex.start || "";
+          const out = el("div", { class: "out" });
+          const zone = el("div", { class: "out" });
+          const run = el("button", { class: "btn ghost sm", type: "button" }, "▶ Exécuter");
+          const check = el("button", { class: "btn", id: "primary", type: "button" }, "Valider");
+          const giveUp = el("button", { class: "link", type: "button" }, "Voir la solution");
+          let tries = 0;
+          let done = false;
+          ta.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              check.click();
+            } else if (e.key === "Tab" && !e.shiftKey) {
+              e.preventDefault();
+              ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end");
+            }
+          });
+          run.onclick = async () => {
+            if (!ta.value.trim()) return ta.focus();
+            run.disabled = true;
+            busy(out, startText(b.bench));
+            try {
+              out.replaceChildren(...[resultView(await evaluate(c, b.bench, ta.value, ex.verify), ex.verify ? "État après ta requête" : "Ton résultat")].flat());
+            } catch (e) {
+              out.replaceChildren(el("pre", { class: "err" }, e.message));
+            }
+            run.disabled = false;
+          };
+          function finish(ok, message) {
+            done = true;
+            ta.readOnly = true;
+            run.remove();
+            check.remove();
+            giveUp.remove();
+            record(item, ok && tries === 1, !ok);
+            zone.replaceChildren(
+              feedback(ok, ex, [message ? el("p", {}, message) : null, ok ? el("p", {}, "Une solution de référence :") : el("p", {}, "Une solution :"), el("pre", {}, ex.sol)]),
+              continueBtn(),
+            );
+            document.getElementById("primary").focus();
+          }
+          giveUp.onclick = () => {
+            if (done) return;
+            tries = Math.max(tries, 1);
+            finish(false);
+          };
+          check.onclick = async () => {
+            if (done) return;
+            const sql = ta.value;
+            if (!sql.trim()) return ta.focus();
+            const up = norm(sql);
+            const missing = (ex.need || []).filter((k) => !up.includes(k.toUpperCase()));
+            const banned = (ex.ban || []).filter((k) => up.includes(k.toUpperCase()));
+            if (missing.length || banned.length) {
+              zone.replaceChildren(
+                el(
+                  "div",
+                  { class: "feedback bad" },
+                  el("p", {}, missing.length ? "Cet exercice demande d'utiliser : " : "Cet exercice se fait sans : ", el("code", {}, (missing.length ? missing : banned).join(", "))),
+                ),
+              );
+              return;
+            }
+            tries++;
+            check.disabled = true;
+            busy(out, startText(b.bench));
+            try {
+              const mine = await evaluate(c, b.bench, sql, ex.verify);
+              out.replaceChildren(...[resultView(mine, ex.verify ? "État après ta requête" : "Ton résultat")].flat());
+              if (mine.err) {
+                check.disabled = false;
+                zone.replaceChildren(el("div", { class: "feedback bad" }, el("p", {}, "Ta requête produit une erreur : lis le message ci-dessus, corrige et revalide.")));
+                return;
+              }
+              let ok = true;
+              if (ex.check !== "run") {
+                if (!ex._ref) ex._ref = await evaluate(c, b.bench, ex.sol, ex.verify);
+                const ordered = ex.ordered ?? /\border\s+by\b/i.test(ex.sol.replace(/OVER\s*\([^)]*\)/gi, ""));
+                ok = sameResult(mine.sets[mine.sets.length - 1], ex._ref.sets[ex._ref.sets.length - 1], ordered, ex.cols);
+              }
+              if (ok) return finish(true, tries > 1 ? "Réussi en " + plural(tries, "essai") + " : la brique sera revue plus tôt." : null);
+              check.disabled = false;
+              zone.replaceChildren(
+                el(
+                  "div",
+                  { class: "feedback bad" },
+                  el("p", {}, "Le résultat ne correspond pas à celui attendu. Vérifie les colonnes, le filtre et l'ordre, puis revalide."),
+                  ex.hint ? el("p", {}, rich("Indice : " + ex.hint)) : null,
+                ),
+              );
+            } catch (e) {
+              check.disabled = false;
+              out.replaceChildren(el("pre", { class: "err" }, e.message));
+            }
+          };
+          setTimeout(() => ta.focus(), 0);
+          return el(
+            "div",
+            { class: "view" },
+            ta,
+            el("div", { class: "row" }, el("div", { class: "row start" }, run, giveUp), check),
+            el("p", { class: "small muted" }, "Ctrl + Entrée pour valider · la base est remise à neuf à chaque exécution"),
+            out,
+            zone,
+          );
+        }
+
+        /* ----- Fin de série ----- */
+        function endView() {
+          const s = session;
+          if (!s.saved) {
+            s.saved = true;
+            gainXp(s.firstTry * 10);
+            if (s.kind === "learn") {
+              // Première étude : la brique entre en boîte 1, à revoir demain, quel que soit le score.
+              if (!memo(s.b)) promote(s.b, true);
+            } else if (s.kind === "review") {
+              s.bricks.forEach((b) => promote(b, !s.fails.has(b)));
+            }
+            save();
+          }
+          const c = s.c;
+          const nb = nextBrick(c);
+          const lines = [];
+          if (s.kind === "learn") {
+            lines.push(el("p", {}, "Prochaine révision de cette brique : ", el("strong", {}, when(memo(s.b).due)), "."));
+          } else if (s.kind === "review") {
+            const up = s.bricks.filter((b) => !s.fails.has(b)).length;
+            lines.push(el("p", {}, plural(up, "brique") + " consolidée" + (up > 1 ? "s" : "") + " · " + plural(s.bricks.length - up, "brique") + " à revoir demain."));
+          }
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "section",
+              { class: "card center" },
+              el("p", { class: "eyebrow" }, s.kind === "learn" ? "Brique terminée" : s.kind === "review" ? "Révision terminée" : "Entraînement terminé"),
+              el("p", { class: "big" }, s.firstTry + "/" + s.asked),
+              el("p", { class: "muted" }, "bonnes réponses du premier coup · +" + s.firstTry * 10 + " XP"),
+              lines,
+            ),
+            el(
+              "div",
+              { class: "row" },
+              el("a", { class: "btn ghost", href: "#/c/" + c.id }, "Retour au cours"),
+              nb && s.kind !== "train"
+                ? el("button", { class: "btn", id: "primary", type: "button", onclick: () => go("c/" + c.id + "/b/" + nb.id) }, "Brique suivante →")
+                : null,
+            ),
+          );
+        }
+
+        /* ---------- Lexique ---------- */
+        function lexView(c) {
+          document.title = "Lexique · " + c.title;
+          let all = false;
+          const input = el("input", { class: "text search", type: "search", placeholder: "Chercher un mot-clé…", "aria-label": "Chercher dans le lexique" });
+          const list = el("div", { class: "view" });
+          const toggle = el("button", { class: "link", type: "button" });
+          function draw() {
+            const q = input.value.trim().toLowerCase();
+            toggle.textContent = all ? "N'afficher que les briques vues" : "Afficher aussi les briques pas encore vues";
+            const groups = allBricks(c)
+              .filter((b) => all || memo(b))
+              .map((b) => ({ b, keys: (b.keys || []).filter(([t, d]) => !q || (t + " " + d).toLowerCase().includes(q)) }))
+              .filter((g) => g.keys.length);
+            list.replaceChildren(
+              ...(groups.length
+                ? groups.map((g) =>
+                    el(
+                      "section",
+                      { class: "card lex-group" },
+                      el("p", { class: "eyebrow" }, g.b.day.label + " · " + g.b.title),
+                      el("dl", { class: "terms" }, g.keys.map(([t, d]) => [el("dt", {}, t), el("dd", {}, rich(d))])),
+                    ),
+                  )
+                : [el("p", { class: "muted" }, q ? "Aucun mot-clé ne correspond." : "Les mots-clés apparaissent ici au fur et à mesure des briques vues.")]),
+            );
+          }
+          input.oninput = draw;
+          toggle.onclick = () => {
+            all = !all;
+            draw();
+          };
+          draw();
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "header",
+              { class: "row" },
+              el("div", { class: "grow" }, el("p", { class: "eyebrow" }, c.title), el("h1", {}, "Lexique")),
+              el("a", { class: "btn ghost sm", href: "#/c/" + c.id }, "← Le cours"),
+            ),
+            input,
+            toggle,
+            list,
+            signature(),
+          );
+        }
+
+        /* ---------- Bac à sable SQL ---------- */
+        function sandboxView(c) {
+          document.title = "Bac à sable · " + c.title;
+          const ta = el("textarea", { class: "text", spellcheck: "false", autocapitalize: "off", autocomplete: "off", "aria-label": "Requête SQL", style: "min-height:180px" });
+          ta.value = state.sandbox[c.id] || "SELECT * FROM campus.products ORDER BY product_id;";
+          const out = el("div", { class: "out" });
+          const run = el("button", { class: "btn", type: "button" }, "▶ Exécuter");
+          const resetBtn = el("button", { class: "btn ghost sm", type: "button" }, "Remettre la base à neuf");
+          const benchBtn = c.bench ? el("button", { class: "btn ghost sm", type: "button" }, "Créer le banc d'essai (300 000 lignes)") : null;
+          ta.addEventListener("input", () => {
+            state.sandbox[c.id] = ta.value;
+            save();
+          });
+          ta.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              run.click();
+            }
+          });
+          // Les exercices remettent la base à neuf ; ici on ne le fait qu'à la première exécution.
+          const ensure = () => (PG.inst && PG.course === c.id ? Promise.resolve() : exclusive(async () => reset(await pg(), c, false)));
+          async function act(btn, text, fn) {
+            btn.disabled = true;
+            busy(out, text);
+            try {
+              await fn();
+            } catch (e) {
+              out.replaceChildren(el("pre", { class: "err" }, e.message));
+            }
+            btn.disabled = false;
+          }
+          run.onclick = () => {
+            if (!ta.value.trim()) return ta.focus();
+            act(run, startText(false), async () => {
+              await ensure();
+              out.replaceChildren(...[resultView(await runFree(ta.value))].flat());
+            });
+          };
+          resetBtn.onclick = () =>
+            act(resetBtn, startText(false), async () => {
+              await exclusive(async () => reset(await pg(), c, false));
+              out.replaceChildren(el("p", { class: "small muted" }, "Base remise à neuf : données d'origine du cours."));
+            });
+          if (benchBtn)
+            benchBtn.onclick = () =>
+              act(benchBtn, "Création de work.bench_orders (300 000 commandes)…", async () => {
+                await ensure();
+                await exclusive(async () => {
+                  const db = await pg();
+                  const r = await db.query("SELECT to_regclass('work.bench_orders') IS NOT NULL AS ok");
+                  if (!r.rows[0].ok) await db.exec(c.bench);
+                });
+                out.replaceChildren(el("p", { class: "small muted" }, "work.bench_orders est prêt : 300 000 commandes synthétiques."));
+              });
+          return el(
+            "main",
+            { class: "view" },
+            el(
+              "header",
+              { class: "row" },
+              el("div", { class: "grow" }, el("p", { class: "eyebrow" }, c.title), el("h1", {}, "Bac à sable SQL")),
+              el("a", { class: "btn ghost sm", href: "#/c/" + c.id }, "← Le cours"),
+            ),
+            el("p", { class: "small muted" }, "Un vrai PostgreSQL 18 tourne dans ton navigateur. Ici, tes modifications restent jusqu'à ce que tu remettes la base à neuf."),
+            el("details", { class: "card" }, el("summary", {}, "Tables disponibles"), el("pre", {}, c.schemaDoc)),
+            ta,
+            el("div", { class: "row" }, el("div", { class: "row start" }, resetBtn, benchBtn), run),
+            el("p", { class: "small muted" }, "Ctrl + Entrée pour exécuter"),
+            out,
+            signature(),
+          );
+        }
+
+        /* ---------- Clavier : Entrée = action principale pendant une série ---------- */
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.shiftKey || !session) return;
+          const tag = e.target && e.target.tagName;
+          if (tag === "TEXTAREA" || tag === "INPUT" || tag === "A") return;
+          if (tag === "BUTTON" && e.target.id !== "primary") return;
+          const p = document.getElementById("primary");
+          if (p && !p.disabled) {
+            e.preventDefault();
+            p.click();
+          }
+        });
+
+        /* ---------- Démarrage : charger les cours dans l'ordre du manifeste ---------- */
+        function loadScript(src) {
+          return new Promise((ok, ko) => {
+            const s = document.createElement("script");
+            s.src = src;
+            s.onload = ok;
+            s.onerror = () => ko(new Error("Fichier introuvable : " + src));
+            document.head.append(s);
+          });
+        }
+        (async () => {
+          try {
+            for (const m of MANIFEST) for (const f of m.files) await loadScript(m.dir + "/" + f);
+          } catch (e) {
+            app.replaceChildren(el("pre", { class: "err" }, e.message));
+            return;
+          }
+          for (const c of COURSES)
+            c.days.forEach((d, i) => {
+              d.n = i + 1;
+              d.bricks.forEach((b) => {
+                b.day = d;
+                b.course = c;
+              });
+            });
+          render();
+        })();
+      })();
+    </script>
+  </body>
+</html>
