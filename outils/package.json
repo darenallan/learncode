@@ -1,0 +1,9 @@
+{
+  "name": "learncode-outils",
+  "private": true,
+  "type": "module",
+  "description": "Outils locaux : vérification des cours avant publication.",
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}
